@@ -353,17 +353,15 @@ http://www.generationrobots.com/blog/en/2015/02/robotic-simulation-scenarios-wit
    </xacro:if>
   </gazebo>
 
-  <xacro:unless value="$(arg kinect)">
-    <!-- LIDAR sensor -->
-    <xacro:include filename="$(find ls_bot)/urdf/lidar.urdf.xacro" />
-    <xacro:lidar name="laser" parent="body">
-      <origin xyz="${scanner_position}" rpy="0 0 0"/>
-    </xacro:lidar>
-  </xacro:unless>
+  <!-- LIDAR sensor -->
+  <xacro:include filename="$(find slam_project)/urdf/lidar.urdf.xacro" />
+  <xacro:lidar name="laser" parent="body">
+    <origin xyz="${scanner_position}" rpy="0 0 0"/>
+  </xacro:lidar>
 
   <xacro:if value="$(arg camera)">
     <!-- Simple Camera -->
-    <xacro:include filename="$(find ls_bot)/urdf/camera.urdf.xacro" />
+    <xacro:include filename="$(find slam_project)/urdf/camera.urdf.xacro" />
     <xacro:simplecamera name="camera" parent="base_link">
       <origin xyz="${body_length / 2 - 0.01} 0 ${body_height/2 + 0.01}" rpy="0 0 0"/>
     </xacro:simplecamera>
@@ -371,7 +369,7 @@ http://www.generationrobots.com/blog/en/2015/02/robotic-simulation-scenarios-wit
   
   <xacro:if value="$(arg kinect)">
     <!-- Depth sensor-->
-    <xacro:include filename="$(find ls_bot)/urdf/depth_sensor.urdf.xacro" />
+    <xacro:include filename="$(find slam_project)/urdf/depth_sensor.urdf.xacro" />
     <xacro:depth_sensor name="camera" parent="base_link">
       <origin xyz="${body_length / 2 - 0.01} 0 ${body_height/2 + 0.01}" rpy="0 0 0"/>
     </xacro:depth_sensor>
