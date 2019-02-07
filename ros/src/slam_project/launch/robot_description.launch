@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="robot_namespace" default="/"/>
+  <arg name="kinect" default="true"/>
+  <arg name="camera" default="false"/>
+  <arg name="gps" default="false"/>
+
+  <!-- send urdf to param server -->
+  <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find slam_project)/urdf/sandbox_bot.xacro'
+robot_namespace:=$(arg robot_namespace)
+kinect:=$(arg kinect)
+camera:=$(arg camera)
+gps:=$(arg gps)
+" />
+
+  <!-- Send fake joint values-->
+  <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" respawn="false" output="screen">
+    <param name="use_gui" value="false"/>
+  </node>
+  <!-- Send robot states to tf -->
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" respawn="false" output="screen"/>
+</launch>

@@ -1,0 +1,380 @@
+<?xml version="1.0"?>
+
+<!-- Using initial specification from https://github.com/SyrianSpock/rover
+Ideas taken from
+http://www.generationrobots.com/blog/en/2015/02/robotic-simulation-scenarios-with-gazebo-and-ros/
+-->
+
+<robot name="sandbox_bot" xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:arg name="kinect" default="false"/>
+  <xacro:arg name="camera" default="false"/>
+  <xacro:arg name="gps" default="false"/>
+
+  <!-- Degree-to-radian conversions -->
+  <xacro:property name="degrees_45" value="0.785398163"/>
+  <xacro:property name="degrees_90" value="1.57079633"/>
+  <xacro:property name="degrees_180" value="3.1415926535897931" />
+
+  <!-- body properties
+         body_length is measured along the x axis, 
+         body_width along the y axis, and body_height along the z axis. -->
+  <xacro:property name="body_length"    value="0.2286"/>
+  <xacro:property name="body_width"     value="0.1524"/>
+  <xacro:property name="body_height"    value="0.01"/>
+  <xacro:property name="body_mass"      value="0.5"/>
+  <xacro:property name="body_clearance" value="0.125"/>
+
+  <!-- Wheel properties
+       hub_dia and tire_dia are the diameters of the hub and tire,
+       respectively. hex_hub_depth is the distance that the hex hub is
+       inset from the outer edge of the tire. It is set so that each wheel
+       is a "zero offset" wheel. hex_hub_depth = tire_width / 2 - axle_length. -->
+  <xacro:property name="hub_dia"       value="0.100"/>
+  <xacro:property name="tire_dia"      value="0.0625"/>
+  <xacro:property name="tire_width"    value="0.024765"/>
+  <xacro:property name="wheel_mass"    value="0.038980594"/>
+
+  <!-- Wheel position properties -->
+  <xacro:property name="wheelbase_xoffset" value="0.025"/>
+  <xacro:property name="wheelbase_yoffset" value="0.022"/>
+  <xacro:property name="wheel_bogie_d"    value="${3*tire_dia/2}"/>
+
+
+  <xacro:property name="wheelbase_x"     value="${body_length/2 + wheelbase_xoffset - tire_dia/2}"/>
+  <xacro:property name="wheelbase_track" value="${body_width/2 + wheelbase_yoffset + tire_width/2}"/>
+
+  <!-- Sensor position properties -->
+  <xacro:property name="scanner_position" value="0 0 0.05"/>
+
+  <xacro:property name="axle_eff_limit" value="5.12766"/>
+  <xacro:property name="axle_vel_limit" value="244.8696"/>
+
+  <material name="body_mat">
+    <color rgba="0.5 0.5 0.5 1"/>
+  </material>
+  <material name="tire_mat">
+    <color rgba="0 0 0 1"/>
+  </material>
+  <material name="imu_mat">
+    <color rgba="0 0 0 1"/>
+  </material>
+
+  <!-- Null inertial element. This is needed to make the model work with Gazebo. -->
+  <xacro:macro name="null_inertial">
+    <inertial>
+      <mass value="0.001"/>
+      <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
+    </inertial>
+  </xacro:macro>
+
+  <!-- Inertia of a solid cuboid. Width is measured along the x axis, depth along the y axis, and height along the z axis. -->
+  <xacro:macro name="solid_cuboid_inertial"
+               params="width depth height mass *origin">
+    <inertial>
+      <xacro:insert_block name="origin"/>
+      <mass value="${mass}"/>
+      <inertia ixx="${mass * (depth * depth + height * height) / 12}"
+               ixy="0" ixz="0"
+               iyy="${mass * (width * width + height * height) / 12}"
+               iyz="0"
+               izz="${mass * (width * width + depth * depth) / 12}"/>
+    </inertial>
+  </xacro:macro>
+
+  <!-- Inertia of a thick-walled cylindrical tube with open ends. Height is
+       measured along the z axis, which is the tube's axis. inner_rad and
+       outer_rad are the tube's inner and outer radii, respectively. -->
+  <xacro:macro name="thick_walled_tube_inertial"
+               params="inner_rad outer_rad height mass">
+    <inertial>
+      <mass value="${mass}"/>
+      <inertia ixx="${(1 / 12) * mass * (3 * (inner_rad * inner_rad +
+                    outer_rad * outer_rad) + height * height)}"
+               ixy="0" ixz="0"
+               iyy="${(1 / 12) * mass * (3 * (inner_rad * inner_rad +
+                    outer_rad * outer_rad) + height * height)}"
+               iyz="0"
+               izz="${mass * (inner_rad * inner_rad +
+                    outer_rad * outer_rad) / 2}"/>
+    </inertial>
+  </xacro:macro>
+
+  <!-- The "wheel" macro defines an axle carrier, axle, and wheel. -->
+  <xacro:macro name="wheel" params="lr_prefix fr_prefix lr_pos fr_pos">
+    <joint name="${lr_prefix}_${fr_prefix}_axle" type="continuous">
+      <parent link="base_link"/>
+      <child link="${lr_prefix}_${fr_prefix}_wheel"/>
+      <origin xyz="${fr_pos}
+                   ${lr_pos}
+                   ${- body_clearance + tire_dia/2}"
+              rpy="${degrees_90} 0 0"/>
+      <axis xyz="0 0 -1"/>
+      <limit effort="${axle_eff_limit}" velocity="${axle_vel_limit}"/>
+      <joint_properties damping="0.0" friction="0.0"/>
+    </joint>
+    <transmission name="${lr_prefix}_${fr_prefix}_axle_trans">
+      <type>transmission_interface/SimpleTransmission</type>
+      <joint name="${lr_prefix}_${fr_prefix}_axle">
+        <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+      </joint>
+      <actuator name="${lr_prefix}_${fr_prefix}_axle_act">
+        <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+        <mechanicalReduction>10</mechanicalReduction>
+      </actuator>
+    </transmission>
+
+    <link name="${lr_prefix}_${fr_prefix}_wheel">
+      <xacro:visual_collision rpy="0 0 0" material="tire_mat">
+         <cylinder radius="${tire_dia / 2}" length="${tire_width}"/>
+      </xacro:visual_collision>
+
+      <xacro:thick_walled_tube_inertial
+          inner_rad="${hub_dia / 2}" outer_rad="${tire_dia / 2}"
+          height="${tire_width}" mass="${wheel_mass}"/>
+    </link>
+
+    <gazebo reference="${lr_prefix}_${fr_prefix}_wheel">
+      <material>Gazebo/Black</material>
+    </gazebo>
+  </xacro:macro>
+
+  <xacro:macro name="visual_collision" params="rpy material *form" >
+   <visual>
+      <geometry>
+        <xacro:insert_block name="form"/>
+      </geometry>
+      <origin xyz="0 0 0" rpy="${rpy}" />
+      <material name="${material}" />
+    </visual>
+    <collision>
+      <geometry>
+        <xacro:insert_block name="form"/>
+      </geometry>
+      <origin xyz="0 0 0" rpy="${rpy}" />
+    </collision>
+  </xacro:macro>
+
+
+  <!-- robot_footprint -->
+  <link name="robot_footprint"></link>
+
+  <joint name="robot_footprint_joint" type="fixed">
+    <origin xyz="0 0 0" rpy="0 0 0" />
+    <parent link="robot_footprint"/>
+    <child link="base_link" />
+  </joint>
+
+  <!-- base_link must have geometry so that its axes can be displayed in rviz. -->
+  <link name="base_link">
+    <visual>
+      <geometry>
+        <box size="0.01 0.01 0.01"/>
+      </geometry>
+      <material name="body_mat"/>
+    </visual>
+  </link>
+  <gazebo reference="base_link">
+    <material>Gazebo/Green</material>
+  </gazebo>
+
+  <joint name="imu_joint" type="fixed">
+     <parent link="base_link"/>
+     <child  link="imu_link"/>
+     <axis   xyz="1 0 0"/>
+     <origin xyz="-0.15 0 0" rpy="0 0 -${degrees_180}"/>
+  </joint>
+
+  <link name="imu_link">
+    <xacro:null_inertial />  
+    <xacro:visual_collision rpy="0 0 0" material="imu_mat">
+      <box size="0.001 0.001 0.001"/>
+    </xacro:visual_collision>
+  </link>
+
+  <link name="GPS_mount_link">
+   <visual>
+    <origin xyz="0 0 0" rpy="0 0 0" />
+    <geometry>
+      <box size="0.01 0.01 0.01"/>
+    </geometry>
+    <material name="black">
+      <color rgba="0 0 0 1.0" />
+    </material>
+   </visual>
+  </link>
+
+  <joint name="GPS_mount_joint" type="fixed">
+    <parent link="base_link" />
+    <child link="GPS_mount_link" />
+    <origin xyz="0 0 0.1" rpy="0 0 0" />
+  </joint>
+  
+  <link name="GPS_link"> <!-- Insert GPS -->
+  <visual>
+    <origin xyz="0 0 0" rpy="0 0 0" />
+    <geometry>
+      <box size="0.01 0.01 0.01"/>
+    </geometry>
+    <material name="black">
+      <color rgba="0.8 0.8 0.8 1.0" />
+    </material>
+  </visual>
+  </link>
+
+  <joint name="GPS_joint" type="fixed">
+    <parent link="base_link" />
+    <child link="GPS_link" />
+    <origin xyz="0 0 0.1" rpy="0 0 0" />
+  </joint>
+
+  <!-- body -->
+  <link name="body">
+    <xacro:visual_collision rpy="0 0 ${-body_height / 2}" material="body_mat">
+      <box size="${body_length} ${body_width} ${body_height}"/>
+    </xacro:visual_collision>
+    <xacro:solid_cuboid_inertial
+        width="${body_length}" depth="${body_width}"
+        height="${body_height}" mass="${body_mass}">
+      <origin xyz="0 0 ${-body_height / 2}"/>
+    </xacro:solid_cuboid_inertial>
+  </link>
+  <gazebo reference="body">
+    <material>Gazebo/Grey</material>
+  </gazebo>
+
+  <joint name="base_link_to_chasis" type="fixed">
+    <parent link="base_link"/>
+    <child  link="body"/>
+  </joint>
+
+  <!-- Wheels -->
+  <xacro:wheel lr_prefix="left_bogie" fr_prefix="front"
+               lr_pos="${wheelbase_track}"
+               fr_pos="${wheelbase_x}"
+               />
+  <xacro:wheel lr_prefix="left_bogie" fr_prefix="rear"
+               lr_pos="${wheelbase_track}"
+               fr_pos="${wheelbase_x - wheel_bogie_d}"
+               />
+  <xacro:wheel lr_prefix="left_rocker" fr_prefix="rear"
+               lr_pos="${wheelbase_track}"
+               fr_pos="${- wheelbase_x}"
+               />
+  <xacro:wheel lr_prefix="right_bogie" fr_prefix="front"
+               lr_pos="${- wheelbase_track}"
+               fr_pos="${wheelbase_x}"
+               />
+  <xacro:wheel lr_prefix="right_bogie" fr_prefix="rear"
+               lr_pos="${- wheelbase_track}"
+               fr_pos="${wheelbase_x - wheel_bogie_d}"
+               />
+  <xacro:wheel lr_prefix="right_rocker" fr_prefix="rear"
+               lr_pos="${- wheelbase_track}"
+               fr_pos="${- wheelbase_x}"
+               />
+ 
+  <gazebo>
+    <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+      <robotNamespace>/</robotNamespace>
+    </plugin>
+
+    <!-- Differential Drive -->
+    <plugin name="differential_drive_controller" filename="libgazebo_ros_diff_drive.so">
+      <alwaysOn>true</alwaysOn>
+      <updateRate>40</updateRate>
+      <legacyMode>false</legacyMode>
+      <leftJoint>left_bogie_rear_axle</leftJoint>
+      <rightJoint>right_bogie_rear_axle</rightJoint>
+      <wheelSeparation>0.4</wheelSeparation>
+      <wheelDiameter>0.2</wheelDiameter>
+      <torque>10</torque>
+      <commandTopic>cmd_vel</commandTopic>
+      <odometryTopic>odom</odometryTopic>
+      <odometryFrame>odom</odometryFrame>
+      <robotBaseFrame>robot_footprint</robotBaseFrame>
+      <publishWheelTF>false</publishWheelTF>
+      <publishWheelJointState>false</publishWheelJointState>
+      <rosDebugLevel>na</rosDebugLevel>
+      <wheelAcceleration>0</wheelAcceleration>
+      <wheelTorque>5</wheelTorque>
+      <odometrySource>world</odometrySource>
+      <publishTf>1</publishTf>
+      <publishOdomTF>true</publishOdomTF>
+      <robotNamespace>/</robotNamespace>
+      <broadcastTF>1</broadcastTF>
+    </plugin>
+
+    <!-- IMU sensor-->
+    <plugin name="imu_sim" filename="libhector_gazebo_ros_imu.so">
+      <robotNamespace>/</robotNamespace>
+      <updateRate>10.0</updateRate>
+      <bodyName>imu_link</bodyName>
+      <topicName>imu/data_raw</topicName>
+      <accelDrift>0.005 0.005 0.005</accelDrift>
+      <accelGaussianNoise>0.005 0.005 0.005</accelGaussianNoise>
+      <rateDrift>0.005 0.005 0.005</rateDrift>
+      <rateGaussianNoise>0.005 0.005 0.005</rateGaussianNoise>
+      <headingDrift>0.005</headingDrift>
+      <headingGaussianNoise>0.005</headingGaussianNoise>
+    </plugin>
+
+    <plugin name="magnetic_sim" filename="libhector_gazebo_ros_magnetic.so">
+      <alwaysOn>true</alwaysOn>
+      <topicName>imu/mag</topicName>
+      <updateRate>10.0</updateRate>
+      <bodyName>imu_link</bodyName>
+      <frameId>imu_link</frameId>
+      <magnitude>46967.9</magnitude>
+      <declination>-2.3865</declination>
+      <inclination>-61.7292</inclination>
+      <offset>0.0 0.0 0.0</offset>
+      <drift>0.0 0.0 0.0</drift>
+      <gaussianNoise>100.0 100.0 100.0</gaussianNoise>
+    </plugin>
+
+   <xacro:if value="$(arg gps)">
+    <plugin name="gps_sim" filename="libhector_gazebo_ros_gps.so">
+      <robotNamespace>/</robotNamespace>      
+      <alwaysOn>true</alwaysOn>
+      <updateRate>0.2</updateRate>
+      <bodyName>GPS_link</bodyName>
+      <frameId>GPS_link</frameId>
+      <topicName>navsat/fix</topicName>
+      <velocityTopicName>navsat/vel</velocityTopicName>
+      <referenceLatitude>-34.9048422761</referenceLatitude>
+      <referenceLongitude>-56.1529312152</referenceLongitude>
+      <referenceHeading>0</referenceHeading>
+      <referenceAltitude>0</referenceAltitude>
+      <drift>0.0001 0.0001 0.0001</drift>
+      <gaussianNoise>0.0 0.0 0.0</gaussianNoise>
+      <velocityDrift>0 0 0</velocityDrift>
+      <velocityGaussianNoise>0.05 0.05 0.05</velocityGaussianNoise>
+    </plugin>
+   </xacro:if>
+  </gazebo>
+
+  <xacro:unless value="$(arg kinect)">
+    <!-- LIDAR sensor -->
+    <xacro:include filename="$(find ls_bot)/urdf/lidar.urdf.xacro" />
+    <xacro:lidar name="laser" parent="body">
+      <origin xyz="${scanner_position}" rpy="0 0 0"/>
+    </xacro:lidar>
+  </xacro:unless>
+
+  <xacro:if value="$(arg camera)">
+    <!-- Simple Camera -->
+    <xacro:include filename="$(find ls_bot)/urdf/camera.urdf.xacro" />
+    <xacro:simplecamera name="camera" parent="base_link">
+      <origin xyz="${body_length / 2 - 0.01} 0 ${body_height/2 + 0.01}" rpy="0 0 0"/>
+    </xacro:simplecamera>
+  </xacro:if>
+  
+  <xacro:if value="$(arg kinect)">
+    <!-- Depth sensor-->
+    <xacro:include filename="$(find ls_bot)/urdf/depth_sensor.urdf.xacro" />
+    <xacro:depth_sensor name="camera" parent="base_link">
+      <origin xyz="${body_length / 2 - 0.01} 0 ${body_height/2 + 0.01}" rpy="0 0 0"/>
+    </xacro:depth_sensor>
+  </xacro:if>
+
+</robot>

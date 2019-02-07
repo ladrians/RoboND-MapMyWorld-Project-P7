@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf8"?>
+
+<launch>
+
+  <arg name="world" default="kitchen_dining.world"/> 
+  <arg name="paused" default="false"/>
+  <arg name="use_sim_time" default="true"/>
+  <arg name="gui" default="false"/>
+  <arg name="headless" default="false"/>
+  <arg name="debug" default="false"/>
+  <arg name="namespace" default="/"/>
+
+  <include file="$(find slam_project)/launch/robot_description.launch"/>
+
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name" value="$(find udacity_bot)/worlds/$(arg world)"/>
+    <arg name="paused" value="$(arg paused)"/>
+    <arg name="use_sim_time" value="$(arg use_sim_time)"/>
+    <arg name="gui" value="$(arg gui)"/>
+    <arg name="headless" value="$(arg headless)"/>
+    <arg name="debug" value="$(arg debug)"/>
+  </include>
+
+  <!--spawn a robot in gazebo world-->
+  <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" args="-urdf -param robot_description -model sandbox_bot"/>
+
+  <rosparam command="load" file="$(find slam_project)/config/control.yaml" />
+  <node name="controller_spawner" pkg="controller_manager" type="spawner"
+        args="rover_joint_publisher rover_velocity_controller --shutdown-timeout 2" />
+
+  <node pkg="topic_tools" type="relay" name="cmd_vel_relay" args="cmd_vel rover_velocity_controller/cmd_vel" />
+
+  <!--launch rviz-->
+  <include file="$(find slam_project)/launch/rviz.launch"/>
+
+</launch>
