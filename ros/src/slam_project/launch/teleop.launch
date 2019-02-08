@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf8"?>
 <launch>
     <!-- Rover teleoperation -->
-    <node name="teleop" pkg="slam_project" type="teleop.py" output="screen" />
+    <node name="teleop" pkg="slam_project" type="teleop.py" output="screen">
+        <remap from="/teleop/cmd_vel" to="/cmd_vel"></remap>
+    </node>
 </launch>
