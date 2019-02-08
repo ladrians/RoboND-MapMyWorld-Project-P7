@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf8"?>
+<launch>
+    <!-- Kitchen -->
+    <include file="$(find slam_project)/launch/world.launch" />
+    <include file="$(find slam_project)/launch/teleop.launch" />
+    <include file="$(find slam_project)/launch/mapping.launch" />
+</launch>
