@@ -304,7 +304,7 @@ http://www.generationrobots.com/blog/en/2015/02/robotic-simulation-scenarios-wit
       <broadcastTF>1</broadcastTF>
     </plugin>
 
-    <!-- IMU sensor-->
+    <!-- IMU sensor
     <plugin name="imu_sim" filename="libhector_gazebo_ros_imu.so">
       <robotNamespace>/</robotNamespace>
       <updateRate>10.0</updateRate>
@@ -330,7 +330,7 @@ http://www.generationrobots.com/blog/en/2015/02/robotic-simulation-scenarios-wit
       <offset>0.0 0.0 0.0</offset>
       <drift>0.0 0.0 0.0</drift>
       <gaussianNoise>100.0 100.0 100.0</gaussianNoise>
-    </plugin>
+    </plugin>-->
 
    <xacro:if value="$(arg gps)">
     <plugin name="gps_sim" filename="libhector_gazebo_ros_gps.so">
