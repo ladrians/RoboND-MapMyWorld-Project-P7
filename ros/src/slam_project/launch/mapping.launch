@@ -7,6 +7,7 @@
   <arg name="camera_info_topic" default="/camera/rgb/camera_info"/>  
   <arg name="frame_id" default="robot_footprint"/>
   <arg name="odom_frame_id" default="odom"/>
+  <arg name="odom_topic" default="odom"/>
 
   <!-- Mapping Node -->
   <group ns="rtabmap">
@@ -20,37 +21,41 @@
       <param name="subscribe_scan"      type="bool"   value="true"/>
 
       <!-- RTAB-Map Inputs -->
-      <remap from="scan"            to="/scan"/>
-      <remap from="rgb/image"       to="$(arg rgb_topic)"/>
-      <remap from="depth/image"     to="$(arg depth_topic)"/>
+      <remap from="scan" to="/scan"/>
+      <remap from="odom" to="/rover_velocity_controller/odom"/> # /odom
+      <remap from="rgb/image" to="$(arg rgb_topic)"/>
+      <remap from="depth/image" to="$(arg depth_topic)"/>
       <remap from="rgb/camera_info" to="$(arg camera_info_topic)"/>
 
       <!-- RTAB-Map Output -->
       <remap from="grid_map" to="/map"/>
-
       <!-- Rate (Hz) at which new nodes are added to map -->
       <param name="Rtabmap/DetectionRate" type="string" value="1"/> 
-
       <!-- 2D SLAM -->
       <param name="Reg/Force3DoF" type="string" value="true"/>      
-
       <!-- Loop Closure Detection - 0=SURF 1=SIFT 2=ORB 3=FAST/FREAK 4=FAST/BRIEF 5=GFTT/FREAK 6=GFTT/BRIEF 7=BRISK 8=GFTT/ORB 9=KAZE-->
       <param name="Kp/DetectorStrategy" type="string" value="0"/> 
-
       <!-- Maximum visual words per image (bag-of-words) -->
       <param name="Kp/MaxFeatures" type="string" value="400"/>  
-
       <!-- Used to extract more or less SURF features -->
       <param name="SURF/HessianThreshold" type="string" value="100"/>
-
       <!-- Loop Closure Constraint - 0=Visual, 1=ICP (1 requires scan)-->
-      <param name="Reg/Strategy" type="string" value="0"/> 
-
+      <param name="Reg/Strategy" type="string" value="1"/>
       <!-- Minimum visual inliers to accept loop closure -->
-      <param name="Vis/MinInliers" type="string" value="15"/> 
-
+      <param name="Vis/MinInliers" type="string" value="12"/> # 15 
       <!-- Set to false to avoid saving data when robot is not moving -->
       <param name="Mem/NotLinkedNodesKept" type="string" value="false"/>
+      <!-- Extra -->
+      <param name="queue_size" type="int" value="10"/>
+      <param name="wait_for_transform_duration" type="string" value="0.2"/> # 0.1
+      <param name="RGBD/NeighborLinkRefining" type="string" value="true"/> # Correct odometry using the input laser topic using ICP
+      <param name="RGBD/ProximityBySpace" type="string" value="true"/>
+      <param name="RGBD/AngularUpdate" type="string" value="0.05"/>
+      <param name="RGBD/LinearUpdate" type="string" value="0.05"/>
+      <param name="RGBD/OptimizeFromGraphEnd" type="string" value="false"/>
+      <param name="Grid/3D" type="string" value="true"/>
+      <param name="Grid/CellSize" type="string" value="0.1"/>
+      <param name="Grid/FromDepth" type="string" value="true"/>
     </node>
   </group>
 </launch>
