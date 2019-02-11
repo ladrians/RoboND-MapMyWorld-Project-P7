@@ -8,7 +8,7 @@ Localization and mapping using RTAB-Map
 
 SLAM or Simultaneous Localisation and Mapping is an important topic within the Robotics community. It is not a particular algorithm or piece of software, but rather it refers to the problem of trying to simultaneously localise (i.e. find the position/orientation of) some sensor with respect to its surroundings, while at the same time mapping the structure of that environment.
 
-In this project we evaluate the usage of RTAB-Map to localize and map an autonomous rover in an indoor environment.
+In this project we evaluate the usage of RTAB-Map to localize and map an autonomous rover in two different environments.
 
 ## Introduction
 
@@ -48,29 +48,31 @@ The structure of the map is a graph with nodes and links. After sensor synchroni
 
 ## Results
 
-Initually the provided `teloperation` utility was used to move the rover but it proveed difficult to controle, so the strategy changed to use the steering plugin (rqt_robot_steering) from the rqt ROS utilities. The rover was moved around the environment to generate a map of the environment.
+Initually the provided `teloperation` utility was used to move the rover but it proveed difficult to control, so the strategy changed to use the [steering plugin] (http://wiki.ros.org/rqt_robot_steering) from the rqt ROS utilities. The rover was moved around the environment to generate a map of the environment.
 
 ### Validation
 
 #### Frames
 
-In order to validate all links are properly connected; the `rqt_tf_tree` utility was used:
+In order to validate all links are properly connected; the [rqt_tf_tree](http://wiki.ros.org/rqt_tf_tree) utility was used:
 
 ```sh
 rosrun rqt_tf_tree rqt_tf_tree
 ```
 
+The result is as follows:
+
 ![rqt_tf_tree](./data/bot_frames01.png)
 
 #### Nodes Graph
 
-To validate naming are properly setup and topics are correctly mapped; the `rqt_graph` utility was used with the following result:
+To validate topic names and connection between nodes; the [rqt_graph](http://wiki.ros.org/rqt_graph) utility was used with the following result:
 
 ![rqt_graph](./data/rqt_graph01.png)
 
 #### roswtf
 
-The [roswtf](https://github.com/ros/ros_comm/tree/kinetic-devel/utilities/roswtf/src/roswtf) utility successfully validated the configuration:
+The [roswtf](https://github.com/ros/ros_comm/tree/kinetic-devel/utilities/roswtf/src/roswtf) utility successfully validated the configuration, the warnings and error detailed can be discarded:
 
 ```sh
 user@machine:~/catkin_ws/ros$ roswtf 
@@ -118,15 +120,15 @@ ERROR Different number of openni2 sensors found.
 
 #### Parameter Tuning
 
-A valuable utility to modify node parameters is the Dynamic Reconfigure node:
+A valuable utility to modify node parameters is the [Dynamic Reconfigure](http://wiki.ros.org/rqt_reconfigure) node:
 
 ```sh
-rosrun rqt_reconfigure rqt_reconfigure &
+rosrun rqt_reconfigure rqt_reconfigure
 ```
 
 #### Visualization Tools
 
-The `rtabmap-databaseViewer` utility was used to explore the database generated when the mapping process is finished.
+The [rtabmap-databaseViewer](https://github.com/introlab/rtabmap/wiki/Tools) utility was used to explore the database generated when the mapping process is finished.
 
 ```sh
 rtabmap-databaseViewer ~/.ros/rtabmap.db
@@ -136,7 +138,7 @@ Notice the detailed information for: Neighbor, Neighbor Merged, Global Loop clos
 
 ### Mapping
 
-To execute the mapping step use the `kitchen.launch` file:
+To execute the [mapping]((ros/src/slam_project/launch/mapping.launch)) step use the [kitchen.launch]((ros/src/slam_project/launch/kitchen.launch)) file:
 
 ```xml
 <!-- Kitchen -->
@@ -147,26 +149,22 @@ To execute the mapping step use the `kitchen.launch` file:
 
 ### Localization
 
-In order to use the generated map for localization, the following changes were done:
+In order to use the generated map for [localization](ros/src/slam_project/launch/localization.launch), the following changes were done:
 
  * Duplicate the mapping.launch file as localization.launch
    * Remove the args="--delete_db_on_start" from the launcher file.
    * Remove the `Mem/NotLinkedNodesKept` parameter
    * add the `Mem/IncrementalMemory` parameter of type string and set it to false.
 
-[localization.launch](ros/src/slam_project/launch/localization.launch)
+### Extra Launch files
 
-### Launch files
+For the evaluation of the map generated, it is possible to execute the [rtabmapviz.launch]((ros/src/slam_project/launch/rtabmapviz.launch)) file:
 
 ```sh
-roslaunch slam_project kitchen.launch
-roslaunch slam_project world.launch
-roslaunch slam_project mapping.launch
-roslaunch slam_project teleop.launch
 roslaunch slam_project rtabmapviz.launch
 ```
 
-For evaluation of the database:
+For evaluation of the database in offline mode once finished the mapping session:
 
 ```sh
 rtabmap-databaseViewer ~/.ros/rtabmap.db
@@ -174,41 +172,34 @@ rtabmap-databaseViewer ~/.ros/rtabmap.db
 
 ## Discussion
 
-TODO
+The [depthimage_to_laserscan](http://wiki.ros.org/depthimage_to_laserscan) package for the Kinect RGB-D sensonr was discarded as the project was run on a Virtual machine. All parameters were modified so as to consume as little processing as needed. Insted a Lidar sensor was added to improve the Odometry provided by the Gazebo simulator.
 
-the depthimage_to_laserscan package for the Kinect http://wiki.ros.org/depthimage_to_laserscan
+Nodes are created at a fixed rate `Rtabmap/DetectionRate` set in milliseconds according to how much data created from nodes should overlap each other; 1s is set.
 
-Nodes are created at a fixed rate `Rtabmap/DetectionRate` set in milliseconds according to how much data created from nodes should overlap each other.
+The initial [Parameters](https://github.com/introlab/rtabmap/blob/master/corelib/include/rtabmap/core/Parameters.h) and [Advanced configuration](http://wiki.ros.org/rtabmap_ros/Tutorials/Advanced%20Parameter%20Tuning) was checked:
 
-[Parameters](https://github.com/introlab/rtabmap/blob/master/corelib/include/rtabmap/core/Parameters.h) and [Advanced configuration](http://wiki.ros.org/rtabmap_ros/Tutorials/Advanced%20Parameter%20Tuning)
+### Initial
 
-```sh
-<!-- Rate (Hz) at which new nodes are added to map -->
-<param name="Rtabmap/DetectionRate" type="string" value="1"/>
+ * `Reg/Force3DoF` set to true.
+ * `Kp/DetectorStrategy` using SURF Loop Closure Detection.
+ * `Kp/MaxFeatures` maximum visual words per image (bag-of-words) set to 400.
+ * `SURF/HessianThreshold` to extract more or less SURF features to 100.
+ * `Reg/Strategy` Loop Closure Constraint tested with Visual and ICP; ICP selected as the map got better.
+ * `Vis/MinInliers` minimum visual inliers to accept loop closure set to 15.
+ * `NotLinkedNodesKept` set to false to avoid saving data when robot is not moving.
 
-<!-- 2D SLAM -->
-<param name="Reg/Force3DoF" type="string" value="true"/>
+### Advanced configuration
 
-<!-- Loop Closure Detection -->
-<!-- 0=SURF 1=SIFT 2=ORB 3=FAST/FREAK 4=FAST/BRIEF 5=GFTT/FREAK 6=GFTT/BRIEF 7=BRISK 8=GFTT/ORB 9=KAZE →
-<param name="Kp/DetectorStrategy" type="string" value="0"/>
-
-<!-- Maximum visual words per image (bag-of-words) -->
-<param name="Kp/MaxFeatures" type="string" value="400"/>
-
-<!-- Used to extract more or less SURF features -->
-<param name="SURF/HessianThreshold" type="string" value="100"/>
-
-<!-- Loop Closure Constraint -->
-<!-- 0=Visual, 1=ICP (1 requires scan)-->
-<param name="Reg/Strategy" type="string" value="0"/>
-
-<!-- Minimum visual inliers to accept loop closure -->
-<param name="Vis/MinInliers" type="string" value="15"/>
-
-<!-- Set to false to avoid saving data when robot is not moving -->
-<param name="Mem/NotLinkedNodesKept" type="string" value="false"/>
-```
+ * `queue_size` set to 10.
+ * `wait_for_transform_duration` changed its default valur from 0.1 to 0.2 to be more tolerant to problems.
+ * `param name="RGBD/NeighborLinkRefining` set to `true to correct odometry using the input laser topic using ICP.
+ * `RGBD/ProximityBySpace` set to `true`.
+ * `RGBD/AngularUpdate` set to 0.05.
+ * `RGBD/LinearUpdate` set to 0.05.
+ * `RGBD/OptimizeFromGraphEnd` set to `false`.
+ * `Grid/3D` enabled.
+ * `Grid/CellSize` set it's default value from 0.05 to 0.1.
+ * `Grid/FromDepth` set to `true`.
 
 ### Troubleshooting
 
