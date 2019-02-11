@@ -3,9 +3,6 @@ Localization and mapping using RTAB-Map
 
 ## Abstract
 
-[Gazebo](http://gazebosim.org/) 
-[RViz](http://wiki.ros.org/rviz)
-
 SLAM or Simultaneous Localisation and Mapping is an important topic within the Robotics community. It is not a particular algorithm or piece of software, but rather it refers to the problem of trying to simultaneously localise (i.e. find the position/orientation of) some sensor with respect to its surroundings, while at the same time mapping the structure of that environment.
 
 In this project we evaluate the usage of RTAB-Map to localize and map an autonomous rover in two different environments.
@@ -172,9 +169,9 @@ rtabmap-databaseViewer ~/.ros/rtabmap.db
 
 ## Discussion
 
-The [depthimage_to_laserscan](http://wiki.ros.org/depthimage_to_laserscan) package for the Kinect RGB-D sensonr was discarded as the project was run on a Virtual machine. All parameters were modified so as to consume as little processing as needed. Insted a Lidar sensor was added to improve the Odometry provided by the Gazebo simulator.
+The [depthimage_to_laserscan](http://wiki.ros.org/depthimage_to_laserscan) package for the Kinect RGB-D sensonr was discarded as the project was run on a Virtual machine. All parameters were modified so as to consume as little processing as needed. Instead a Lidar sensor was added to improve the Odometry provided by the Gazebo simulator.
 
-Nodes are created at a fixed rate `Rtabmap/DetectionRate` set in milliseconds according to how much data created from nodes should overlap each other; 1s is set.
+Nodes are created at a fixed rate `Rtabmap/DetectionRate` of 1 second according to how much data created from nodes should overlap each other.
 
 The initial [Parameters](https://github.com/introlab/rtabmap/blob/master/corelib/include/rtabmap/core/Parameters.h) and [Advanced configuration](http://wiki.ros.org/rtabmap_ros/Tutorials/Advanced%20Parameter%20Tuning) was checked:
 
@@ -256,6 +253,4 @@ When it comes time to design your own environment, this tool can be a good resou
  * [SetupOnYourRobot withb rtabmap](http://wiki.ros.org/rtabmap_ros/Tutorials/SetupOnYourRobot)
  * [What is SLAM?](https://www.kudan.eu/kudan-news/an-introduction-to-slam/)
  * [rtabmap parameters](https://github.com/introlab/rtabmap/blob/master/corelib/include/rtabmap/core/Parameters.h)
- * [https://introlab.3it.usherbrooke.ca/mediawiki-introlab/images/7/7a/Labbe18JFR_preprint.pdf](RTAB-Map as an Open-Source Lidar and Visual SLAM Library for Large-Scale and Long-Term Online Operation)
-
-
+ * [RTAB-Map as an Open-Source Lidar and Visual SLAM Library for Large-Scale and Long-Term Online Operation](https://introlab.3it.usherbrooke.ca/mediawiki-introlab/images/7/7a/Labbe18JFR_preprint.pdf)
