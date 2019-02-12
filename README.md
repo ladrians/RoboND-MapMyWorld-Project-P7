@@ -268,7 +268,7 @@ The final result from the generated database:
 
 ### Models
 
-The generated databases can be downloaded from [here](https://drive.google.com/drive/folders/1FNCsdRDSnxNvx7aE8JfSojW4k6tMrl3w).
+The generated databases can be downloaded from [here](https://drive.google.com/open?id=1FNCsdRDSnxNvx7aE8JfSojW4k6tMrl3w).
 
 Unzip the files and execute a command similar to:
 
