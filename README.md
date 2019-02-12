@@ -213,6 +213,16 @@ Statistics size:	0 Bytes	0.00%
 Other (indexing):	35 MB	10.47%
 ```
 
+### Models
+
+The generated databases can be downloaded from [here](https://drive.google.com/drive/folders/1FNCsdRDSnxNvx7aE8JfSojW4k6tMrl3w).
+
+Unzip the files and execute
+
+```sh
+rtabmap-databaseViewer ~/.ros/corridor01.db
+rtabmap-databaseViewer ~/.ros/kitchen01.db
+```
 
 ### Mapping
 
