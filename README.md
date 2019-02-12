@@ -151,6 +151,37 @@ rtabmap-databaseViewer ~/.ros/rtabmap.db
 
 Notice the detailed information for: Neighbor, Neighbor Merged, Global Loop closure, Local loop closure by space, Local loop closure by time, User loop closure, and Prior link.
 
+### Kitchen Sample
+
+#### Database information
+
+
+```
+Version:		0.17.6
+Sessions:		1
+Total odometry length:	55.1824 m
+Total time:		00:08:53.510
+LTM:		337 nodes and 10903 words
+WM:		337 nodes and 10903 words
+Global graph:	337 poses and 1008 links
+Ground truth:	0 poses
+GPS:	0 poses
+
+Database size:	163 MB
+Nodes size:		42 KB	0.03%
+Links size:		730 KB	0.45%
+RGB Images size:	11 MB	6.85%
+Depth Images size:	127 MB	78.12%
+Calibrations size:	24 KB	0.01%
+Grids size:		1 MB	1.14%
+Scans size:		833 KB	0.51%
+User data size:	0 Bytes	0.00%
+Dictionary size:	3 MB	1.87%
+Features size:	12 MB	7.49%
+Statistics size:	0 Bytes	0.00%
+Other (indexing):	5 MB	3.53%
+```
+
 ### Corridor Sample
 
 #### Database information
