@@ -11,7 +11,21 @@ In this project we evaluate the usage of RTAB-Map to localize and map an autonom
 
 SLAM is central to a range of indoor, outdoor, in-air and underwater applications for both manned and autonomous vehicles. It is known to be a difficult problem because it is a chicken-or-egg problem where a map is needed for localization and a pose estimate is needed for mapping.
 
-RTAB-Map (Real-Time Appearance-Based Mapping) is a RGB-D Graph SLAM approach based on a global Bayesian loop closure detector. The loop closure detector uses a bag-of-words approach to determinate how likely a new image comes from a previous location or a new location. When a loop closure hypothesis is accepted, a new constraint is added to the map's graph, then a graph optimizer minimizes the errors in the map. A memory management approach is used to limit the number of locations used for loop closure detection and graph optimization, so that real-time constraints on large-scale environnements are always respected.
+RTAB-Map (Real-Time Appearance-Based Mapping) is a RGB-D Graph SLAM approach based on a global Bayesian loop closure detector. The loop closure detector uses a bag-of-words approach to determinate how likely a new image comes from a previous location or a new location. The following image details how the features are extracted, feature descriptor are created and clustered; a vocabulary of words is set.
+
+![bag of words](./data/visual_bag_of_words01.png)
+
+When a loop closure hypothesis is accepted, a new constraint is added to the map's graph, then a graph optimizer minimizes the errors in the map. RTAB-Map supports 3 different graph optimizations:
+
+ * Tree-based network optimizer, or TORO.
+ * General Graph Optimization, or G2O.
+ * GTSAM (Smoothing and Mapping).
+
+A memory management approach is used to limit the number of locations used for loop closure detection and graph optimization, so that real-time constraints on large-scale environnements are always respected.
+
+![graph optimization](./data/graph_optimization01.png)
+
+Graph-SLAM complexity is linear, according to the number of nodes, which increases according to the size of the map. By providing constraints associated with how many nodes are processed for loop closure by memory management, the time complexity becomes constant in RTAB-Map.
 
 In our simulation environment a rover called `ls_bot` is equipped with a RGB-D camera and a Lidar sensor and is driven around two different environments. The objective is to create a 2D and 3D representation of it's surroundings.
 
@@ -66,6 +80,10 @@ The result is as follows:
 To validate topic names and connection between nodes; the [rqt_graph](http://wiki.ros.org/rqt_graph) utility was used with the following result:
 
 ![rqt_graph](./data/rqt_graph01.png)
+
+The configuration is based on the following sensor configuration (already discussed): 
+
+![rqt_graph](./data/sensors_configuration.jpeg)
 
 #### roswtf
 
