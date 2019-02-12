@@ -218,6 +218,8 @@ The initial [Parameters](https://github.com/introlab/rtabmap/blob/master/corelib
 
 ### Troubleshooting
 
+#### Collisions
+
 The provided world was not detecting collisions and thus the Lidar sensor didn't  provide any information, the `scan` topic was empty. The problem was that the default Gazebo model lacked the `collision` tag in it's [SDF](http://sdformat.org/spec?ver=1.6&elem=sdf) definition. The solution was found using this [thread](https://udacity-robotics.slack.com/archives/C9E2PMMT4/p1532492850000135) on the slack community.
 
 ```
@@ -232,6 +234,19 @@ and updating the local gazebo folder
 
 ```sh
 curl -L https://s3-us-west-1.amazonaws.com/udacity-robotics/Term+2+Resources/P3+Resources/models.tar.gz | tar zx -C ~/.gazebo/
+```
+#### Octomap projection
+
+In order to create a map based on Octomap the following properties were enabled:
+
+ * Grid/3D
+ * Grid/FromDepth
+
+otherwise the following error appears:
+
+```
+Octomap projection map is empty! (poses=340 octomap nodes=0). Make sure you activated "Grid/3D" and "Grid/FromDepth" to true.
+See "$ rosrun rtabmap_ros rtabmap --params | grep Grid" for more info.
 ```
 
 ## Considerations
@@ -272,3 +287,4 @@ When it comes time to design your own environment, this tool can be a good resou
  * [What is SLAM?](https://www.kudan.eu/kudan-news/an-introduction-to-slam/)
  * [rtabmap parameters](https://github.com/introlab/rtabmap/blob/master/corelib/include/rtabmap/core/Parameters.h)
  * [RTAB-Map as an Open-Source Lidar and Visual SLAM Library for Large-Scale and Long-Term Online Operation](https://introlab.3it.usherbrooke.ca/mediawiki-introlab/images/7/7a/Labbe18JFR_preprint.pdf)
+
