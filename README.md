@@ -151,6 +151,38 @@ rtabmap-databaseViewer ~/.ros/rtabmap.db
 
 Notice the detailed information for: Neighbor, Neighbor Merged, Global Loop closure, Local loop closure by space, Local loop closure by time, User loop closure, and Prior link.
 
+### Corridor Sample
+
+#### Database information
+
+
+```
+Version:		0.17.6
+Sessions:		1
+Total odometry length:	54.3411 m
+Total time:		00:08:40.810
+LTM:		389 nodes and 52272 words
+WM:		389 nodes and 52272 words
+Global graph:	389 poses and 698 links
+Ground truth:	0 poses
+GPS:	0 poses
+
+Database size:	342 MB
+Nodes size:		49 KB	0.01%
+Links size:		496 KB	0.14%
+RGB Images size:	18 MB	5.48%
+Depth Images size:	184 MB	53.75%
+Calibrations size:	28 KB	0.01%
+Grids size:		2 MB	0.66%
+Scans size:		1 MB	0.32%
+User data size:	0 Bytes	0.00%
+Dictionary size:	14 MB	4.31%
+Features size:	85 MB	24.84%
+Statistics size:	0 Bytes	0.00%
+Other (indexing):	35 MB	10.47%
+```
+
+
 ### Mapping
 
 To execute the [mapping]((ros/src/slam_project/launch/mapping.launch)) step use the [kitchen.launch]((ros/src/slam_project/launch/kitchen.launch)) file:
