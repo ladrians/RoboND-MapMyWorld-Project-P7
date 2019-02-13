@@ -160,19 +160,15 @@ Notice the detailed information for: Neighbor, Neighbor Merged, Global Loop clos
 
 ### Kitchen Sample
 
-Once the Simulation starts the rover detect the following environment:
+Once the Simulation starts, the rover detects the following environment:
 
-![Kitchen 2D](./data/kitchen_initial03.png)
+![Kitchen Initial environment](./data/kitchen_initial03.png)
 
 Once the Kitchen was traversed, a 2D representation is show as follows:
 
 ![Kitchen 2D](./data/kitchen_2d02.png)
 
-If adding the associated path:
-
-![Kitchen 2D](./data/kitchen_2d01.png)
-
-Again Rviz representation is detailed as follows:
+Using Rviz:
 
 ![Kitchen 2D](./data/kitchen_initial_map01.png)
 
@@ -186,7 +182,8 @@ And adding the associated path:
 
 More detail here:
 
- * [Database viewer 2D representation](./data/kitchen_initial02.png)
+ * [2D graph](./data/kitchen_2d01.png)
+ * [Database viewer 2D](./data/kitchen_initial02.png)
  * [Rviz mapped world with path](./data/kitchen_path01.png)
 
 #### Database information
@@ -219,27 +216,27 @@ Other (indexing):	5 MB	3.53%
 
 ### Corridor Sample
 
-A 2D representation for the Corridor world:
+Once the Simulation starts, the rover detects the following environment:
+
+![COrridor Initial environment](./data/corridor_initial01.png)
+
+A 2D representation for the Corridor world once it was traversed:
 
 ![Corridor 2D](./data/corridor_2d01.png)
-
-If adding the associated path:
-
-![Corridor 3D](./data/corridor_path01.png)
 
 A 3D representation:
 
 ![Corridor 3D](./data/corridor_3d01.png)
 
-And adding the associated path:
+If adding the associated path:
 
-![Corridor 3D](./data/corridor_3d02.png)
+![Corridor 3D](./data/corridor_path01.png)
 
 More detail here:
 
+ * [Rviz 3D representation](./data/corridor_3d02.png)
  * [Corridor final mapped world](./data/corridor_3d03.png)
  * [Database viewer 2D representation](./data/kitchen_initial02.png)
- 
 
 #### Database information
 
