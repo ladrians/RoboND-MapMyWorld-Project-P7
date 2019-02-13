@@ -5,7 +5,10 @@ Localization and mapping using RTAB-Map
 
 SLAM or Simultaneous Localisation and Mapping is an important topic within the Robotics community. It is not a particular algorithm or piece of software, but rather it refers to the problem of trying to simultaneously localise (i.e. find the position/orientation of) some sensor with respect to its surroundings, while at the same time mapping the structure of that environment.
 
-In this project we evaluate the usage of RTAB-Map to localize and map an autonomous rover in two different environments.
+In this project we evaluate the usage of RTAB-Map to localize and map an autonomous rover in two different environments:
+
+ * Kitchen
+ * Corridor
 
 ## Introduction
 
@@ -38,6 +41,10 @@ The `ls_bot` is an extension from the [rocker-bogie project](https://github.com/
 using the provided environment:
 
 ![Gazebo kitchen environment](./data/kitchen_initial01.png)
+
+The Corridor example:
+
+![Gazebo corridor environment](./data/corridor_with_obstacles01.png)
 
 The objective is to create a 2D/3D mapping of those environments using the RTAB-Map package.
 
@@ -153,8 +160,36 @@ Notice the detailed information for: Neighbor, Neighbor Merged, Global Loop clos
 
 ### Kitchen Sample
 
-#### Database information
+Once the Simulation starts the rover detect the following environment:
 
+![Kitchen 2D](./data/kitchen_initial03.png)
+
+Once the Kitchen was traversed, a 2D representation is show as follows:
+
+![Kitchen 2D](./data/kitchen_2d02.png)
+
+If adding the associated path:
+
+![Kitchen 2D](./data/kitchen_2d01.png)
+
+Again Rviz representation is detailed as follows:
+
+![Kitchen 2D](./data/kitchen_initial_map01.png)
+
+The 3D representations:
+
+![Kitchen 2D](./data/kitchen_3d01.png)
+
+And adding the associated path:
+
+![Kitchen 2D](./data/kitchen_3d02.png)
+
+More detail here:
+
+ * [Database viewer 2D representation](./data/kitchen_initial02.png)
+ * [Rviz mapped world with path](./data/kitchen_path01.png)
+
+#### Database information
 
 ```
 Version:		0.17.6
@@ -184,8 +219,29 @@ Other (indexing):	5 MB	3.53%
 
 ### Corridor Sample
 
-#### Database information
+A 2D representation for the Corridor world:
 
+![Corridor 2D](./data/corridor_2d01.png)
+
+If adding the associated path:
+
+![Corridor 3D](./data/corridor_path01.png)
+
+A 3D representation:
+
+![Corridor 3D](./data/corridor_3d01.png)
+
+And adding the associated path:
+
+![Corridor 3D](./data/corridor_3d02.png)
+
+More detail here:
+
+ * [Corridor final mapped world](./data/corridor_3d03.png)
+ * [Database viewer 2D representation](./data/kitchen_initial02.png)
+ 
+
+#### Database information
 
 ```
 Version:		0.17.6
@@ -213,15 +269,19 @@ Statistics size:	0 Bytes	0.00%
 Other (indexing):	35 MB	10.47%
 ```
 
+The final result from the generated database:
+
+![Corridor 3D](./data/corridor_database_viewer01.png)
+
 ### Models
 
 The generated databases can be downloaded from [here](https://drive.google.com/drive/folders/1FNCsdRDSnxNvx7aE8JfSojW4k6tMrl3w).
 
-Unzip the files and execute
+Unzip the files and execute a command similar to:
 
 ```sh
-rtabmap-databaseViewer ~/.ros/corridor01.db
-rtabmap-databaseViewer ~/.ros/kitchen01.db
+rtabmap-databaseViewer ~/corridor01.db
+rtabmap-databaseViewer ~/kitchen01.db
 ```
 
 ### Mapping
