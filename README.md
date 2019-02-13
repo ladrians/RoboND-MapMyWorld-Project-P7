@@ -3,7 +3,7 @@ Localization and mapping using RTAB-Map
 
 ## Abstract
 
-SLAM or Simultaneous Localisation and Mapping is an important topic within the Robotics community. It is not a particular algorithm or piece of software, but rather it refers to the problem of trying to simultaneously localise (i.e. find the position/orientation of) some sensor with respect to its surroundings, while at the same time mapping the structure of that environment.
+SLAM or Simultaneous Localization and Mapping is an important topic within the Robotics community. It is not a particular algorithm or piece of software, but rather it refers to the problem of trying to simultaneously localize (i.e. find the position/orientation of) some sensor with respect to its surroundings, while at the same time mapping the structure of that environment.
 
 In this project we evaluate the usage of RTAB-Map to localize and map an autonomous rover in two different environments:
 
@@ -24,13 +24,13 @@ When a loop closure hypothesis is accepted, a new constraint is added to the map
  * General Graph Optimization, or G2O.
  * GTSAM (Smoothing and Mapping).
 
-A memory management approach is used to limit the number of locations used for loop closure detection and graph optimization, so that real-time constraints on large-scale environnements are always respected.
+A memory management approach is used to limit the number of locations used for loop closure detection and graph optimization, so that real-time constraints on large-scale environments are always respected.
 
 ![graph optimization](./data/graph_optimization01.png)
 
 Graph-SLAM complexity is linear, according to the number of nodes, which increases according to the size of the map. By providing constraints associated with how many nodes are processed for loop closure by memory management, the time complexity becomes constant in RTAB-Map.
 
-In our simulation environment a rover called `ls_bot` is equipped with a RGB-D camera and a Lidar sensor and is driven around two different environments. The objective is to create a 2D and 3D representation of it's surroundings.
+In our simulation environment a rover called `ls_bot` is equipped with a RGB-D camera and a Lidar sensor and is driven around two different environments. The objective is to create a 2D and 3D representation of its surroundings.
 
 ![ls_bot in Gazebo](./data/ls_bot_gazebo01.png)
 
@@ -66,7 +66,7 @@ The structure of the map is a graph with nodes and links. After sensor synchroni
 
 ## Results
 
-Initually the provided `teloperation` utility was used to move the rover but it proveed difficult to control, so the strategy changed to use the [steering plugin] (http://wiki.ros.org/rqt_robot_steering) from the rqt ROS utilities. The rover was moved around the environment to generate a map of the environment.
+Initially the provided `teleoperation` utility was used to move the rover but it proved difficult to control, so the strategy changed to use the [steering plugin] (http://wiki.ros.org/rqt_robot_steering) from the rqt ROS utilities. The rover was moved around the environment to generate a map of the environment.
 
 ### Validation
 
@@ -164,19 +164,17 @@ Once the Simulation starts, the rover detects the following environment:
 
 ![Kitchen Initial environment](./data/kitchen_initial03.png)
 
-Once the Kitchen was traversed, a 2D representation is show as follows:
+Once the Kitchen was traversed, a 2D representation is shown as follows:
 
 ![Kitchen 2D](./data/kitchen_2d02.png)
 
-Using Rviz:
+Using Rviz including the traversed path:
 
 ![Kitchen 2D](./data/kitchen_initial_map01.png)
 
-The 3D representations:
+3D representations:
 
 ![Kitchen 2D](./data/kitchen_3d01.png)
-
-And adding the associated path:
 
 ![Kitchen 2D](./data/kitchen_3d02.png)
 
@@ -224,11 +222,9 @@ A 2D representation for the Corridor world once it was traversed:
 
 ![Corridor 2D](./data/corridor_2d01.png)
 
-A 3D representation:
+3D representations:
 
 ![Corridor 3D](./data/corridor_3d01.png)
-
-If adding the associated path:
 
 ![Corridor 3D](./data/corridor_path01.png)
 
@@ -317,7 +313,7 @@ rtabmap-databaseViewer ~/.ros/rtabmap.db
 
 ## Discussion
 
-The [depthimage_to_laserscan](http://wiki.ros.org/depthimage_to_laserscan) package for the Kinect RGB-D sensonr was discarded as the project was run on a Virtual machine. All parameters were modified so as to consume as little processing as needed. Instead a Lidar sensor was added to improve the Odometry provided by the Gazebo simulator.
+The [depthimage_to_laserscan](http://wiki.ros.org/depthimage_to_laserscan) package for the Kinect RGB-D sensor was discarded as the project was run on a Virtual machine. All parameters were modified so as to consume as little processing as needed. Instead a Lidar sensor was added to improve the Odometry provided by the Gazebo simulator.
 
 Nodes are created at a fixed rate `Rtabmap/DetectionRate` of 1 second according to how much data created from nodes should overlap each other.
 
@@ -350,7 +346,7 @@ The initial [Parameters](https://github.com/introlab/rtabmap/blob/master/corelib
 
 #### Collisions
 
-The provided world was not detecting collisions and thus the Lidar sensor didn't  provide any information, the `scan` topic was empty. The problem was that the default Gazebo model lacked the `collision` tag in it's [SDF](http://sdformat.org/spec?ver=1.6&elem=sdf) definition. The solution was found using this [thread](https://udacity-robotics.slack.com/archives/C9E2PMMT4/p1532492850000135) on the slack community.
+The provided world was not detecting collisions and thus the Lidar sensor didn't provide any information, the `scan` topic was empty. The problem was that the default Gazebo model lacked the `collision` tag in its [SDF](http://sdformat.org/spec?ver=1.6&elem=sdf) definition. The solution was found using this [thread](https://udacity-robotics.slack.com/archives/C9E2PMMT4/p1532492850000135) on the slack community.
 
 ```
 <collision name="collision">
@@ -378,30 +374,17 @@ otherwise the following error appears:
 Octomap projection map is empty! (poses=340 octomap nodes=0). Make sure you activated "Grid/3D" and "Grid/FromDepth" to true.
 See "$ rosrun rtabmap_ros rtabmap --params | grep Grid" for more info.
 ```
+## Discussion
 
-## Considerations
-
-TODO
-
-### Virtual Machine
-
-The environment was tested using the provided Virtual Machine.
+It was possible to generate maps for both generated environments. In some cases it was difficult to get an accurate map as the rover needed to move very slowly particularly trying not to rotate very fast. Several parameters related to resolution were modified to lower the power processing and the memory used.
 
 ## Conclusion / Future Work
 
-RTAB-Map started as an appearancebased loop closure detection approach with memory management to deal with large-scale and long-term online operation. It then grew to implement Simultaneous Localization and Mapping (SLAM) on various robots and mobile platforms. As each application brings its own set of contraints on sensors, processing capabilities and locomotion, it raises the question of which SLAM approach is the most appropriate to use in terms of cost, accuracy, computation power and ease of integration. Since most of SLAM approaches are either visual or lidar-based; to do a comparison is difficult.
+RTAB-Map is a multi-purpose graph-based SLAM approach which can be used out-of-the-box, it supports different sensor configurations and processing capabilities. It can be used without a deep understanding on its internals. It seems to be a reasonable solution for SLAM to develop robots that can map environments in 2D/3D and low-cost sensors such as RGB-D Camera, stereo cameras or combined with a Lidar.
 
+The drawback found is that the environments must be feature-rich enough to make global loop closures, otherwise the generated maps are not useful.
 
-RTAB-Map is now a multi-purpose graph-based SLAM approach that can be used out-of-the-box by novice SLAM users and for prototyping on robot platforms with different sensor configurations and processing capabilities.
-
-RTAB-Map can be used to conduct trials with different sensors and identify early on if a sensor is suitable for the targeted application.
-
-The limited field of view of the front facing RGB-D camera was also a problem during navigation. If the robot did not follow a very similar path than the one done previously when mapping the environment (e.g., to avoid someone passing by), the robot could get lost as loop closures or localizations could not be detected afterward.
-
-
-RTAB-Map seems to be a good solution for SLAM to develop robots that can map environments in 3D and for low-cost SLAM with RGB-D and stereo cameras.
-
-When it comes time to design your own environment, this tool can be a good resource for checking if the environment is feature-rich enough to make global loop closures. A good environment has many features that can be associated in order to achieve loop closures.
+The following step would be to apply it on a real world environment and validate if the generated map is reasonable and good enough for navigation.
 
 ### Links:
  * [Initial Resources](https://s3-us-west-1.amazonaws.com/udacity-robotics/Term+2+Resources/P3+Resources/Student+Project+Materials.zip)
